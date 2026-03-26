@@ -1,0 +1,18 @@
+# 本地使用示例配置。
+# 索引文件固定保存到 ~/.memeclaw/vectors.pt。
+# 必需的配置段：[library]、[server]
+
+[library]
+# 必填：已存在的图片目录。
+image_dir = "/home/example/Pictures"
+# 必填：嵌入模型名称。
+model = "OFA-Sys/chinese-clip-vit-base-patch16"
+# 可选：建索引时要跳过的目录。
+exclude_dirs = ["thumbnails", "@eaDir", ".cache"]
+
+[server]
+# 必填：本地 API 服务的绑定地址。
+host = "127.0.0.1"
+# 必填：本地 API 服务的端口。
+port = 8000
+

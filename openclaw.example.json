@@ -1,0 +1,11 @@
+{
+  "skills": {
+    "entries": {
+      "meme-claw": {
+        "env": {
+          "MEMECLAW_CONFIG": "/home/example/.memeclaw/config.toml"
+        }
+      }
+    }
+  }
+}

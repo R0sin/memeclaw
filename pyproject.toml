@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling>=1.24.2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "memeclaw"
+version = "0.1.0"
+description = "CLI for local image semantic search with OpenClaw"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115.0",
+  "httpx[socks]>=0.27.0",
+  "pillow>=10.0.0",
+  "python-multipart>=0.0.9",
+  "torch>=2.1.0",
+  "transformers>=4.40.0",
+  "uvicorn>=0.30.0",
+]
+
+[project.scripts]
+memeclaw = "memeclaw.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/memeclaw"]
