@@ -30,7 +30,8 @@ memeclaw/
 ## 安装
 
 ```bash
-uv tool install /path/to/memeclaw
+git clone https://github.com/R0sin/memeclaw.git
+uv tool install ./memeclaw
 memeclaw --help
 ```
 
@@ -49,21 +50,23 @@ memeclaw config validate --json
 memeclaw config show --json
 ```
 
+`memeclaw config init` 默认会把 `library.image_dir` 设为 `~/.memeclaw`，目录不存在时会自动创建。
+
 通过 CLI 更新配置：
 
 ```bash
-memeclaw config set --image-dir "/home/example/Pictures" --model openai/clip-vit-base-patch32 --port 8000 --json
+memeclaw config set --image-dir "/home/example/Pictures" --model OFA-Sys/chinese-clip-vit-base-patch16 --port 8000 --json
 memeclaw config show --json
 ```
 
 配置文件示例：
 
-仓库内也提供了可直接参考的 [config.example.toml](./config.example.toml)。
+仓库内也提供了可直接参考的 [config.example.toml](./config.example.toml)，其中展示的是 OpenClaw 环境示例；`config init` 生成的本机默认值见下方示例。
 
 ```toml
 [library]
-image_dir = "/home/example/Pictures"
-model = "openai/clip-vit-base-patch32"
+image_dir = "/home/example/.memeclaw"
+model = "OFA-Sys/chinese-clip-vit-base-patch16"
 exclude_dirs = ["thumbnails", "@eaDir", ".cache"]
 
 [server]

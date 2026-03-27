@@ -157,14 +157,19 @@ class ConfigTests(unittest.TestCase):
 
     def test_write_default_config_and_load_round_trip(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            config_path = Path(temp_dir) / "config.toml"
-            with patch_default_vectors_path(Path(temp_dir)):
-                written_path = write_default_config(config_path)
-                self.assertEqual(written_path, config_path.resolve())
-                loaded = load_config(config_path)
+            root = Path(temp_dir)
+            config_path = root / "config.toml"
+            with patch("memeclaw.config.Path.home", return_value=root):
+                with patch_default_vectors_path(root):
+                    written_path = write_default_config(config_path)
+                    self.assertEqual(written_path, config_path.resolve())
+                    loaded = load_config(config_path)
+            self.assertEqual(loaded.library.image_dir, (root / ".memeclaw").resolve())
             self.assertTrue(loaded.library.image_dir.exists())
+            self.assertTrue(loaded.library.image_dir.is_dir())
+            self.assertEqual(loaded.library.model, "OFA-Sys/chinese-clip-vit-base-patch16")
             self.assertEqual(loaded.server.port, 8000)
-            self.assertEqual(loaded.library.vectors_path, make_vectors_path(Path(temp_dir)))
+            self.assertEqual(loaded.library.vectors_path, make_vectors_path(root))
 
     def test_parse_config_dict_rejects_missing_image_dir(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -232,12 +237,14 @@ class ConfigTests(unittest.TestCase):
 
     def test_load_config_wraps_os_errors(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            config_path = Path(temp_dir) / 'config.toml'
-            with patch_default_vectors_path(Path(temp_dir)):
-                write_default_config(config_path)
-                with patch('pathlib.Path.open', side_effect=PermissionError('denied')):
-                    with self.assertRaisesRegex(ConfigError, 'Unable to read config file'):
-                        load_config(config_path)
+            root = Path(temp_dir)
+            config_path = root / 'config.toml'
+            with patch("memeclaw.config.Path.home", return_value=root):
+                with patch_default_vectors_path(root):
+                    write_default_config(config_path)
+                    with patch('pathlib.Path.open', side_effect=PermissionError('denied')):
+                        with self.assertRaisesRegex(ConfigError, 'Unable to read config file'):
+                            load_config(config_path)
 
 
 class IndexWorkflowTests(unittest.TestCase):
@@ -385,31 +392,42 @@ class RuntimeTests(unittest.TestCase):
 class CliSmokeTests(unittest.TestCase):
     def test_cli_config_init_show_and_validate(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            config_path = Path(temp_dir) / "config.toml"
+            root = Path(temp_dir)
+            config_path = root / "config.toml"
             with patch.dict(os.environ, {ENV_CONFIG_PATH: str(config_path)}):
-                with patch_default_vectors_path(Path(temp_dir)):
-                    stdout = io.StringIO()
-                    stderr = io.StringIO()
-                    with redirect_stdout(stdout), redirect_stderr(stderr):
-                        exit_code = cli.main(["config", "init", "--json"])
-                    self.assertEqual(exit_code, 0)
-                    self.assertTrue(config_path.exists())
-                    created = json.loads(stdout.getvalue())
-                    self.assertEqual(created["path"], str(config_path.resolve()))
+                with patch("memeclaw.config.Path.home", return_value=root):
+                    with patch_default_vectors_path(root):
+                        stdout = io.StringIO()
+                        stderr = io.StringIO()
+                        with redirect_stdout(stdout), redirect_stderr(stderr):
+                            exit_code = cli.main(["config", "init", "--json"])
+                        self.assertEqual(exit_code, 0)
+                        self.assertTrue(config_path.exists())
+                        created = json.loads(stdout.getvalue())
+                        self.assertEqual(created["path"], str(config_path.resolve()))
+                        self.assertEqual(
+                            created["config"]["library"]["image_dir"],
+                            str((root / ".memeclaw").resolve()),
+                        )
+                        self.assertEqual(
+                            created["config"]["library"]["model"],
+                            "OFA-Sys/chinese-clip-vit-base-patch16",
+                        )
+                        self.assertTrue((root / ".memeclaw").is_dir())
 
-                    stdout = io.StringIO()
-                    with redirect_stdout(stdout), redirect_stderr(io.StringIO()):
-                        exit_code = cli.main(["config", "show", "--json"])
-                    self.assertEqual(exit_code, 0)
-                    shown = json.loads(stdout.getvalue())
-                    self.assertIn("library", shown["config"])
+                        stdout = io.StringIO()
+                        with redirect_stdout(stdout), redirect_stderr(io.StringIO()):
+                            exit_code = cli.main(["config", "show", "--json"])
+                        self.assertEqual(exit_code, 0)
+                        shown = json.loads(stdout.getvalue())
+                        self.assertIn("library", shown["config"])
 
-                    stdout = io.StringIO()
-                    with redirect_stdout(stdout), redirect_stderr(io.StringIO()):
-                        exit_code = cli.main(["config", "validate", "--json"])
-                    self.assertEqual(exit_code, 0)
-                    validated = json.loads(stdout.getvalue())
-                    self.assertEqual(validated["path"], str(config_path.resolve()))
+                        stdout = io.StringIO()
+                        with redirect_stdout(stdout), redirect_stderr(io.StringIO()):
+                            exit_code = cli.main(["config", "validate", "--json"])
+                        self.assertEqual(exit_code, 0)
+                        validated = json.loads(stdout.getvalue())
+                        self.assertEqual(validated["path"], str(config_path.resolve()))
 
     def test_cli_config_set_updates_values(self):
         with tempfile.TemporaryDirectory() as temp_dir:

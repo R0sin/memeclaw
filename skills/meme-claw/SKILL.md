@@ -98,7 +98,7 @@ memeclaw index --json
   "image_count": 128,
   "skipped": 2,
   "vector_dim": 512,
-  "model": "openai/clip-vit-base-patch32"
+  "model": "OFA-Sys/chinese-clip-vit-base-patch16"
 }
 ```
 
@@ -133,6 +133,8 @@ memeclaw config validate --json        # 校验
 memeclaw config set --image-dir /data/images --json  # 更新字段
 memeclaw config set --clear-exclude-dirs --exclude-dir thumbnails --exclude-dir .cache --json
 ```
+
+`memeclaw config init` 默认会创建 `~/.memeclaw` 目录，并将它写入 `library.image_dir`。
 
 ---
 

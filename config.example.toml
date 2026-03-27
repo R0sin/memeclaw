@@ -4,7 +4,7 @@
 
 [library]
 # 必填：已存在的图片目录。
-image_dir = "/home/example/Pictures"
+image_dir = "/home/node/.openclaw/media/memeclaw"
 # 必填：嵌入模型名称。
 model = "OFA-Sys/chinese-clip-vit-base-patch16"
 # 可选：建索引时要跳过的目录。

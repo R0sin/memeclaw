@@ -73,14 +73,13 @@ def default_vectors_path(home: Path | None = None) -> Path:
 
 def default_config() -> AppConfig:
     home = Path.home().resolve()
-    pictures = home / "Pictures"
-    image_dir = pictures if pictures.exists() and pictures.is_dir() else home
+    image_dir = (home / ".memeclaw").resolve()
     vectors_path = default_vectors_path(home)
     return AppConfig(
         library=LibraryConfig(
             image_dir=image_dir,
             vectors_path=vectors_path,
-            model="openai/clip-vit-base-patch32",
+            model="OFA-Sys/chinese-clip-vit-base-patch16",
             exclude_dirs=("thumbnails", "@eaDir", ".cache"),
         ),
         server=ServerConfig(host=DEFAULT_SERVER_HOST, port=DEFAULT_SERVER_PORT),
@@ -246,4 +245,7 @@ def write_default_config(path: str | Path | None = None, force: bool = False) ->
     config_path = get_config_path(path)
     if config_path.exists() and not force:
         raise ConfigError(f"Config file already exists: {config_path}. Use --force to overwrite it.")
-    return save_config(default_config(), path=config_path)
+
+    config = default_config()
+    config.library.image_dir.mkdir(parents=True, exist_ok=True)
+    return save_config(config, path=config_path)

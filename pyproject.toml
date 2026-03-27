@@ -23,3 +23,16 @@ memeclaw = "memeclaw.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/memeclaw"]
+
+# ── uv: use CPU-only PyTorch to avoid ~2 GB CUDA download ───────
+# torch is fetched exclusively from the CPU wheel index;
+# all other packages resolve from the default PyPI index.
+# To install with GPU/CUDA support, remove the sections below.
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
