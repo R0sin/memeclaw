@@ -27,6 +27,21 @@ memeclaw/
 └── openclaw.example.json
 ```
 
+## 快速开始
+
+```bash
+git clone https://github.com/R0sin/memeclaw.git
+uv tool install ./memeclaw
+# 初始化配置文件，默认路径为 ~/.memeclaw/config.toml
+memeclaw config init
+# 对接OpenClaw的话，推荐以下目录避免被安全策略拦截
+memeclaw config set --image-dir "/home/node/.openclaw/media/memeclaw"
+# 启动服务（首次启动会下载配置的CLIP模型）
+memeclaw serve
+# 迁移Skill（使用OpenClaw工作目录）
+cp -r ./memeclaw/skills/meme-claw "/home/node/.openclaw/workspace/skills"
+```
+
 ## 安装
 
 ```bash
