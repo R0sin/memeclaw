@@ -32,6 +32,7 @@ memeclaw/
 ```bash
 git clone https://github.com/R0sin/memeclaw.git
 uv tool install ./memeclaw
+uv tool update-shell
 # 初始化配置文件，默认路径为 ~/.memeclaw/config.toml
 memeclaw config init
 # 对接OpenClaw的话，推荐以下目录避免被安全策略拦截
